@@ -1,2 +1,6 @@
 venv/
 Untitled-1.ipynb
+*.xlsx
+*.xls
+__pycache__/
+prueba.py

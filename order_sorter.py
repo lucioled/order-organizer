@@ -1,4 +1,5 @@
 
+from pathlib import Path
 from turtle import title
 import pandas as pd
 from openpyxl.workbook import Workbook
@@ -16,35 +17,43 @@ INVENTORY = {
     "repollo": 1,
     "acelga": 1,
     "remolacha": 1,
+    "cebolla": 2,
     "pera": 2,
     "manzana": 2,
     "limon": 2,
     "naranja": 2,
     "pomelo": 2,
     "manzana verde": 2,
-    "apio": 3,
     "banana": 3,
     "maracuya": 3,
     "mandarina": 3,
     "tomate": 3,
     "berenjena": 3,
     "espinaca": 3,
-    "kiwi": 4,
+    "apio": 3,
     "morron": 4,
     "jengibre": 4,
     "curcuma": 4,
-    "ajo": 4,
     "verdeo": 4,
     "verdeo colorado": 4,
     "puerro": 4,
     "kale": 4,
     "lechuga": 4,
+    "crespa": 4,
+    "morada": 4,
+    "mantecosa": 4,
+    "repollada": 4,
     "rabanito": 4,
     "rucula": 4,
     "escarola": 4,
     "perejil": 4,
     "arandano": 4,
     "cilantro": 4,
+    "ajo": 4,
+    "cherry": 4,
+    "kiwi": 4
+
+
 
 
 }
@@ -79,29 +88,51 @@ def sort_order(order):
     return " - ".join(filtered_order)
 
 
+def get_amounts(order):
+    elements_quantities = []
+    for key, value in INVENTORY.items():
+        for element in order.split("-"):
+            if key in element:
+                element.split(key)
+                elements_quantities.append([])
+
+
 def run():
-    layout = [[sg.Text("Ordenador de pedidos de ALIMENTA SA")], [
-        sg.Button("CLOSE")]]
-    window = sg.Window(title="En ejecucion", layout=layout, margins=(200, 200))
+    layout = [[sg.Text("Ordenador de pedidos de ALIMENTA")],
+              [sg.Text("Insertar archivo .xlsx"), sg.Input(
+                  key="-IN-"), sg.FileBrowse()],
+              #   [sg.Text("Elige la carpeta donde se guardará el nuevo archivo"),
+              #    sg.Input(key="-OUT-"), sg.FolderBrowse()],
+              [sg.Button("Convertir")],
+              [sg.Button("CERRAR")], ]
+    window = sg.Window(title="En ejecución", layout=layout, margins=(200, 100))
     while True:
         event, values = window.read()
-    # End program if user closes window or
-    # presses the OK button
-        if event == "CLOSE" or event == sg.WIN_CLOSED:
+        if event == "Convertir":
+            try:
+                order_df = readFile(values["-IN-"])
+            except:
+                print(
+                    "Debés elegir un archivo que termine con una de las siguientes extensiones: .xls , .xlsx")
+            sorted_df = order_df
+            count = 0
+            for order in order_df.iloc[:, 4]:
+                if type(order) != str:
+                    break
+                sorted_df.iloc[count, 4] = sort_order(order)
+                count += 1
+            sorted_df.to_excel("Planilla ordenada.xlsx", index=False)
+            sg.popup_no_titlebar("Listo!")
+
+    # Program ends if user press CERRAR button or the X in the upper-right corner
+        if event == "CERRAR" or event == sg.WIN_CLOSED:
             break
 
 
-    # file_xlsx = input(""" Give me the file:
-    # """)
-    # order_df = readFile(file_xlsx)
-    # sorted_df = order_df
-    # count = 0
-    # for order in order_df.iloc[:, 4]:
-    #     if type(order) != str:
-    #         break
-    #     sorted_df.iloc[count, 4] = sort_order(order)
-    #     count += 1
-    # output_filename = input("Guardar el archivo con el nombre → ")
-    # sorted_df.to_excel(output_filename, index=False)
+# file_xlsx = input(""" Give me the file:
+# """)
+#
+# output_filename = input("Guardar el archivo con el nombre → ")
+# sorted_df.to_excel(output_filename, index=False)
 if __name__ == '__main__':
     run()
